@@ -71,54 +71,25 @@ func Test_lastChar(t *testing.T) {
 	}
 }
 
-func TestSequences_AddFront(t *testing.T) {
-	seqs := Sequences{}
-
-	seqs.AddFront("a")
-	seqs.AddFront("b")
-	seqs.AddFront("cd")
-
-	assert.Equal(t, 3, len(seqs))
-	assert.Equal(t, "cd", seqs[0])
-	assert.Equal(t, "b", seqs[1])
-	assert.Equal(t, "a", seqs[2])
-	assert.Equal(t, "cdba", seqs.String())
-	assert.Equal(t, 4, seqs.Len())
-}
-
-func TestSequences_AddBack(t *testing.T) {
-	seqs := Sequences{}
-
-	seqs.AddBack("a")
-	seqs.AddBack("b")
-	seqs.AddBack("cd")
-
-	assert.Equal(t, 3, len(seqs))
-	assert.Equal(t, "a", seqs[0])
-	assert.Equal(t, "b", seqs[1])
-	assert.Equal(t, "cd", seqs[2])
-	assert.Equal(t, "abcd", seqs.String())
-}
-
-func TestNewSequences(t *testing.T) {
+func Test_findParts(t *testing.T) {
 	tests := []struct {
 		name string
 		orig string
-		want Sequences
+		want []string
 	}{
-		{name: "1", orig: "abc", want: Sequences{"abc"}},
-		{name: "2", orig: "a-b-c", want: Sequences{"a", "-", "b", "-", "c"}},
-		{name: "3", orig: "ABC", want: Sequences{"A", "B", "C"}},
-		{name: "4", orig: "a--b--c", want: Sequences{"a", "-", "-", "b", "-", "-", "c"}},
-		{name: "5", orig: "aa-bb", want: Sequences{"aa", "-", "bb"}},
-		{name: "6", orig: "aaBbCc", want: Sequences{"aa", "Bb", "Cc"}},
-		{name: "7", orig: "aa-Bb-cc", want: Sequences{"aa", "-", "Bb", "-", "cc"}},
-		{name: "8", orig: "AaaBBbCcc", want: Sequences{"Aaa", "B", "Bb", "Ccc"}},
+		{name: "1", orig: "abc", want: []string{"abc"}},
+		{name: "2", orig: "a-b-c", want: []string{"a", "-", "b", "-", "c"}},
+		{name: "3", orig: "ABC", want: []string{"A", "B", "C"}},
+		{name: "4", orig: "a--b--c", want: []string{"a", "-", "-", "b", "-", "-", "c"}},
+		{name: "5", orig: "aa-bb", want: []string{"aa", "-", "bb"}},
+		{name: "6", orig: "aaBbCc", want: []string{"aa", "Bb", "Cc"}},
+		{name: "7", orig: "aa-Bb-cc", want: []string{"aa", "-", "Bb", "-", "cc"}},
+		{name: "8", orig: "AaaBBbCcc", want: []string{"Aaa", "B", "Bb", "Ccc"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewSequences(tt.orig); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewSequences() = %v (%d), want %v (%d)",
+			if got := findParts(tt.orig); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("findParts() = %v (%d), want %v (%d)",
 					[]string(got), len(got),
 					[]string(tt.want), len(tt.want),
 				)

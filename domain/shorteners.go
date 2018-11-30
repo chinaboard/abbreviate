@@ -5,73 +5,46 @@ import (
 	"unicode"
 )
 
-type parseState int
-
-const (
-	starting parseState = iota
-	inWord
-	betweenWords
-)
-
-type Sequences []string
-
-func NewSequences(original string) Sequences {
-	seq := Sequences{}
+func findParts(original string) []string {
+	parts := []string{}
 
 	set := ""
 	for _, ch := range []rune(original) {
 		if !unicode.IsLetter(ch) {
 			if set != "" {
-				seq.AddBack(set)
+				parts = append(parts, set)
 			}
-			seq.AddBack(string(ch))
+			parts = append(parts, string(ch))
 			set = ""
 		} else if unicode.IsUpper(ch) {
 			if set != "" {
-				seq.AddBack(set)
+				parts = append(parts, set)
 			}
 			set = string(ch)
 		} else if !unicode.IsLetter(ch) {
 			if set != "" {
-				seq.AddBack(set)
+				parts = append(parts, set)
 			}
-			seq.AddBack(string(ch))
+
+			parts = append(parts, string(ch))
 			set = ""
 		} else {
 			set += string(ch)
 		}
 	}
 	if set != "" {
-		seq.AddBack(set)
+		parts = append(parts, set)
 	}
 
-	return seq
+	return parts
 }
 
-func (all Sequences) String() string {
-	str := ""
-	for _, s := range all {
-		str += s
-	}
-
-	return str
-}
-
-func (all *Sequences) AddFront(str string) {
-	initial := Sequences{str}
-	*all = append(initial, *all...)
-}
-
-func (all *Sequences) AddBack(str string) {
-	*all = append(*all, str)
-}
-
-func (all Sequences) Len() int {
+func sumLen(s []string) int {
 	l := 0
-	for _, s := range all {
-		l += len(s)
-	}
 
+	for _, p := range s {
+		l = len(p)
+	}
 	return l
 }
 
@@ -87,17 +60,17 @@ func ShortenFromBack(matcher *Matcher, original string, max int) string {
 		return original
 	}
 
-	shortened := NewSequences(original)
-	for pos := len(shortened) - 1; pos >= 0 && shortened.Len() > max; pos-- {
-		str := shortened[pos]
+	parts := findParts(original)
+	for pos := len(parts) - 1; pos >= 0 && sumLen(parts) > max; pos-- {
+		str := parts[pos]
 		abbr := matcher.Match(strings.ToLower(str))
 		if isTitleCase(str) {
 			abbr = makeTitle(abbr)
 		}
-		shortened[pos] = abbr
+		parts[pos] = abbr
 	}
 
-	return shortened.String()
+	return strings.Join(parts, "")
 }
 
 func isTitleCase(str string) bool {
